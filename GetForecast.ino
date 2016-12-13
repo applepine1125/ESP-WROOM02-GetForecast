@@ -10,10 +10,8 @@
 
 Adafruit_NeoPixel RGBLED = Adafruit_NeoPixel(NUMRGBLED, RGBLED_OUTPIN, NEO_RGB + NEO_KHZ400);
 
-//const char* ssid     = "Buffalo-G-4FA4";
-//const char* password = "8h834syh7m8nw";
-const char* ssid     = "takashi の iPhone";
-const char* password = "takashi0926";
+//const char* ssid     = "";
+//const char* password = "";
 
 const char* host = "api.openweathermap.org";
 
@@ -35,14 +33,14 @@ String ParseJson(String line){
 
     int lineLength = line.length()+1;
     char* lineChar = new char[lineLength];
-    
+
     line.toCharArray(lineChar,lineLength);
 //    Serial.print("lineChar:");
 //    Serial.println(lineChar);
-    
+
     StaticJsonBuffer<500> jsonBuffer;
     JsonObject& root = jsonBuffer.parseObject(lineChar);
-    
+
     if (!root.success()) {
       Serial.println("parseObject() failed");
       return parsedJson;
@@ -52,7 +50,7 @@ String ParseJson(String line){
     Serial.print("weather:");
     Serial.println(parsedJson);
     return parsedJson;
-  } 
+  }
   else {
     return parsedJson;
   }
@@ -63,7 +61,7 @@ void getForecastData(){
   Serial.println();
   Serial.print("connecting to ");
   Serial.println(host);
-  
+
   // Use WiFiClient class to create TCP connections
   WiFiClient client;
   const int httpPort = 80;
@@ -72,16 +70,16 @@ void getForecastData(){
     weather = "";
     return;
   }
-  
+
   // We now create a URI for the request
   String url = "/data/2.5/weather?q=Tokyo,jp&APPID=53ae162fe37e0ce562d4e6761a50b4be";
-  
+
   Serial.print("Requesting URL: ");
   Serial.println(url);
-  
+
   // This will send the request to the server
   client.print(String("GET ") + url + " HTTP/1.1\r\n" +
-               "Host: " + host + "\r\n" + 
+               "Host: " + host + "\r\n" +
                "Connection: close\r\n\r\n");
   unsigned long timeout = millis();
   while (client.available() == 0) {
@@ -92,13 +90,13 @@ void getForecastData(){
       return;
     }
   }
-  
+
   // Read all the lines of the reply from server and print them to Serial
   while(client.available()){
     String line = client.readStringUntil('\r');
     weather = ParseJson(line);
   }
-  
+
   Serial.println("closing connection");
   return;
 }
@@ -120,7 +118,7 @@ void setup() {
   //富樫はこの２行いじればいい
   RGBLED.setBrightness(255);
   //左からLEDのLEDの番号,R,G,B
-  RGBLED.setPixelColor(0,100,100,100) ; 
+  RGBLED.setPixelColor(0,100,100,100) ;
   RGBLED.show() ;
   Serial.begin(115200);
   delay(10);
@@ -131,16 +129,16 @@ void setup() {
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
-  
+
   WiFi.begin(ssid, password);
-  
+
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
 
   Serial.println("");
-  Serial.println("WiFi connected");  
+  Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 }
@@ -150,4 +148,3 @@ void loop() {
 //  getForecastData();
 //  showLED();
 }
-
